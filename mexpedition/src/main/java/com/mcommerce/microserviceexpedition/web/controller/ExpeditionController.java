@@ -1,4 +1,4 @@
-package com.mcommerce.microserviceexpedition;
+package com.mcommerce.microserviceexpedition.web.controller;
 
 import com.mcommerce.microserviceexpedition.dao.ExpeditionDao;
 import com.mcommerce.microserviceexpedition.model.Expedition;
