@@ -24,13 +24,13 @@ public class ExpeditionController {
         Optional<Expedition> expedition = expeditionDao.findById(id);
 
         if(!expedition.isPresent())
-            throw new ExpeditionNotFoundException(String.format("Expedition with id: {} was not found", id));
+            throw new ExpeditionNotFoundException(String.format("Expedition with id: %s was not found", id));
 
-        return new ResponseEntity<Expedition>(expedition.get(), HttpStatus.OK);
+        return new ResponseEntity<>(expedition.get(), HttpStatus.OK);
     }
 
     @PostMapping("")
-    public ResponseEntity<Expedition> createExpedition(@Valid @RequestBody Expedition expedition) {
+    public ResponseEntity<Void> createExpedition(@Valid @RequestBody Expedition expedition) {
         Expedition createdExpedition = expeditionDao.save(expedition);
 
         if(createdExpedition == null)   return ResponseEntity.noContent().build();
