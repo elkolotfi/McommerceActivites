@@ -41,4 +41,16 @@ public class ExpeditionController {
 
         return ResponseEntity.created(location).build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateExpedition(@Valid @RequestBody Expedition expedition, @PathVariable int id) {
+        if(!expeditionDao.findById(id).isPresent()) throw new ExpeditionNotFoundException(
+                                                                    String.format("No Expedition with id %s", id));
+
+        expedition.setId(id);
+
+        if(expeditionDao.save(expedition) == null)  ResponseEntity.noContent().build();
+
+        return ResponseEntity.accepted().build();
+    }
 }
