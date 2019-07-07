@@ -1,9 +1,12 @@
 package com.clientui.controller;
 
 import com.clientui.beans.CommandeBean;
+import com.clientui.beans.ExpeditionBean;
 import com.clientui.beans.PaiementBean;
 import com.clientui.beans.ProductBean;
+import com.clientui.enums.Etats;
 import com.clientui.proxies.MicroserviceCommandeProxy;
+import com.clientui.proxies.MicroserviceExpeditionProxy;
 import com.clientui.proxies.MicroservicePaiementProxy;
 import com.clientui.proxies.MicroserviceProduitsProxy;
 import org.slf4j.Logger;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +28,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Controller
 public class ClientController {
+
+    @Autowired
+    private MicroserviceExpeditionProxy microserviceExpeditionProxy;
 
     @Autowired
     private MicroserviceProduitsProxy ProduitsProxy;
@@ -124,9 +131,22 @@ public class ClientController {
         return "confirmation";
     }
 
+    @GetMapping("/suivi/{idCommande}")
+    public String suiviCommande(@PathVariable int idCommande, Model model) {
+
+        ExpeditionBean expeditionBean = microserviceExpeditionProxy.etatExpedition(idCommande);
+        if( expeditionBean != null && Etats.Etat(expeditionBean.getEtat()) != null ) {
+            model.addAttribute("etat", Etats.Etat(expeditionBean.getEtat()).name);
+            model.addAttribute("idCommande", idCommande);
+        }
+
+        return "Suivi";
+    }
+
     //Génére une serie de 16 chiffres au hasard pour simuler vaguement une CB
     private Long numcarte() {
 
         return ThreadLocalRandom.current().nextLong(1000000000000000L,9000000000000000L );
     }
+
 }
