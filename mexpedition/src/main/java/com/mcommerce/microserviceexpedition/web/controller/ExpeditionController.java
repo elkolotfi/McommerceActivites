@@ -53,4 +53,15 @@ public class ExpeditionController {
 
         return ResponseEntity.accepted().build();
     }
+
+    @GetMapping("command/{idCommande}")
+    public ResponseEntity<Expedition> expeditionByCommand(@PathVariable int idCommande) {
+
+        Optional<Expedition> expedition = expeditionDao.findByIdCommande(idCommande);
+
+        if(!expedition.isPresent())
+            throw new ExpeditionNotFoundException(String.format("No expedition for command id: %s", idCommande));
+
+        return new ResponseEntity<>(expedition.get(), HttpStatus.OK);
+    }
 }
