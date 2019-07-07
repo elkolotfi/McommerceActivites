@@ -4,6 +4,7 @@ import com.mcommerce.microserviceexpedition.dao.ExpeditionDao;
 import com.mcommerce.microserviceexpedition.model.Expedition;
 import com.mcommerce.microserviceexpedition.web.exception.ExpeditionNotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,7 @@ import java.net.URI;
 import java.util.Optional;
 
 @Controller @AllArgsConstructor
-@RequestMapping("/Expeditions")
+@RequestMapping("/Expeditions") @Slf4j
 public class ExpeditionController {
     private final ExpeditionDao expeditionDao;
 
@@ -44,14 +45,21 @@ public class ExpeditionController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateExpedition(@Valid @RequestBody Expedition expedition, @PathVariable int id) {
-        if(!expeditionDao.findById(id).isPresent()) throw new ExpeditionNotFoundException(
+        Optional<Expedition> savedExpedition = expeditionDao.findById(id);
+        if(!savedExpedition.isPresent()) throw new ExpeditionNotFoundException(
                                                                     String.format("No Expedition with id %s", id));
 
         expedition.setId(id);
+        // On ne doit pas être capable de modifier la commande d'une expédition
+        if(expedition.getIdCommande() != savedExpedition.get().getIdCommande())
+            expedition.setIdCommande(savedExpedition.get().getIdCommande());
 
-        if(expeditionDao.save(expedition) == null)  ResponseEntity.noContent().build();
-
-        return ResponseEntity.accepted().build();
+        try {
+            expeditionDao.save(expedition);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.accepted().build();
+        }
     }
 
     @GetMapping("command/{idCommande}")
